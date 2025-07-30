@@ -12,13 +12,13 @@ dotenv.config();
 const app = express();
 
 // Create uploads folder if it doesn't exist
-const uploadsDir = path.join(__dirname, 'uploads');
+const uploadsDir = path.join(__dirname, 'Uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log('Created uploads/ folder');
 }
 
-// Security Middleware with relaxed CSP for development
+// Security Middleware with CSP for Vercel
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -27,8 +27,8 @@ app.use(
         'script-src': ["'self'", "'unsafe-inline'"],
         'script-src-attr': ["'unsafe-inline'"],
         'default-src': ["'self'"],
-        'img-src': ["'self'", "data:", "http://localhost:5000", "https://*.up.railway.app"],
-        'media-src': ["'self'", "http://localhost:5000", "https://*.up.railway.app"],
+        'img-src': ["'self'", "data:", "https://*.vercel.app"],
+        'media-src': ["'self'", "https://*.vercel.app"],
         'style-src': ["'self'", "'unsafe-inline'"],
       },
     },
@@ -36,7 +36,7 @@ app.use(
 );
 
 // CORS Configuration
-const allowedOrigins = ['http://localhost:5000', 'http://localhost:3000', process.env.FRONTEND_URL || 'https://your-frontend.vercel.app'];
+const allowedOrigins = [process.env.FRONTEND_URL || 'https://your-frontend.vercel.app'];
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
