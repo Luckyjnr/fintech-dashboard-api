@@ -12,9 +12,13 @@ exports.protect = async (req, res, next) => {
   ) {
     try {
       token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      req.user = await User.findById(decoded.id).select('-password'); // attach user info to req
+      // Verify and decode token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log('Decoded token:', decoded); // Debug: Log decoded token
+
+      // Use decoded.id to match token payload
+      req.user = await User.findById(decoded.id).select('-password');
 
       if (!req.user) {
         return res.status(401).json({ message: 'Not authorized, user not found' });
@@ -22,11 +26,10 @@ exports.protect = async (req, res, next) => {
 
       next();
     } catch (error) {
+      console.error('JWT Error:', error);
       return res.status(401).json({ message: 'Not authorized, token failed' });
     }
-  }
-
-  if (!token) {
+  } else {
     return res.status(401).json({ message: 'Not authorized, no token' });
   }
 };

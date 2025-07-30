@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 
 // Generate JWT
 const generateToken = (user) => {
+  console.log('Generating token for user:', user._id, 'with secret:', process.env.JWT_SECRET);
   return jwt.sign(
     { id: user._id, role: user.role },
     process.env.JWT_SECRET,
@@ -29,17 +30,19 @@ exports.register = async (req, res) => {
     });
 
     const token = generateToken(user);
+    console.log('Register response:', { token, user: { id: user._id, username, role } });
 
     res.status(201).json({
       message: 'User registered successfully',
+      token,
       user: {
         id: user._id,
         username: user.username,
         role: user.role,
-        token,
       },
     });
   } catch (error) {
+    console.error('Register error:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -60,17 +63,19 @@ exports.login = async (req, res) => {
     }
 
     const token = generateToken(user);
+    console.log('Login response:', { token, user: { id: user._id, username, role: user.role } });
 
     res.status(200).json({
       message: 'Login successful',
+      token,
       user: {
         id: user._id,
         username: user.username,
         role: user.role,
-        token,
       },
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ message: error.message });
   }
 };

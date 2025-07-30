@@ -18,10 +18,17 @@ const userSchema = new mongoose.Schema({
     default: 'user',
   },
   balance: {
-  type: Number,
-  default: 40000,
-},
-
+    type: Number,
+    default: 40000,
+  },
+  profileImage: {
+    type: String,
+    default: null, // Stores path to profile image
+  },
+  profileVideo: {
+    type: String,
+    default: null, // Stores path to profile video
+  },
 });
 
 // Hash password before saving

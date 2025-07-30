@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Profile Image</title>
+</head>
+<body>
+  <h2>Upload Profile Image</h2>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <label>Profile Image: <input type="file" id="profile" name="profile" accept="image/jpeg,image/jpg,image/png,image/gif" required></label><br>
+    <button type="submit">Upload</button>
+  </form>
+  <p id="error" style="color: red;"></p>
+  <p id="success" style="color: green;"></p>
+  <img id="profileImage" src="" style="display: none; max-width: 200px;" alt="Profile Image">
+
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const formData = new FormData();
+      const fileInput = document.getElementById('profile');
+      formData.append('profile', fileInput.files[0]);
+
+      try {
+        const response = await fetch('http://localhost:5000/api/profile/upload-profile', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        const data = await response.json();
+        console.log('Upload response:', data);
+        if (!response.ok) {
+          throw new Error(data.message || 'Upload failed');
+        }
+
+        document.getElementById('success').textContent = data.message;
+        document.getElementById('error').textContent = '';
+        document.getElementById('profileImage').src = `http://localhost:5000${data.profileImage}`;
+        document.getElementById('profileImage').style.display = 'block';
+      } catch (error) {
+        document.getElementById('error').textContent = error.message;
+        document.getElementById('success').textContent = '';
+      }
+    });
+  </script>
+</body>
+</html>

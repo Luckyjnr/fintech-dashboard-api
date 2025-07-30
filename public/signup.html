@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register</title>
+</head>
+<body>
+  <h2>Register</h2>
+  <form id="signupForm">
+    <label>Username: <input type="text" id="username" required></label><br>
+    <label>Password: <input type="password" id="password" required></label><br>
+    <button type="submit">Sign Up</button>
+  </form>
+  <p id="error" style="color: red;"></p>
+  <p id="success" style="color: green;"></p>
+  <button id="loginButton" style="display: none;">Go to Login</button>
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorElement = document.getElementById('error');
+      const successElement = document.getElementById('success');
+      const loginButton = document.getElementById('loginButton');
+
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+        console.log('Register response:', data); // Debug response
+        if (!response.ok) {
+          throw new Error(data.message || 'Registration failed');
+        }
+
+        // Save token to localStorage
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          console.log('Token saved:', data.token);
+          successElement.textContent = 'Registration successful, please log in';
+          errorElement.textContent = '';
+          loginButton.style.display = 'block'; // Show login button
+          document.getElementById('signupForm').reset(); // Reset form
+        } else {
+          throw new Error('No token received');
+        }
+      } catch (error) {
+        errorElement.textContent = error.message;
+        successElement.textContent = '';
+      }
+    });
+
+    // Handle login button click
+    document.getElementById('loginButton').addEventListener('click', () => {
+      window.location.href = '/login.html';
+    });
+  </script>
+</body>
+</html>

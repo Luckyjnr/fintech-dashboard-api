@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Transaction</title>
+</head>
+<body>
+  <h2>Create Transaction</h2>
+  <form id="txnForm">
+    <select name="type">
+      <option value="credit">Credit</option>
+      <option value="debit">Debit</option>
+    </select><br>
+    <input type="number" name="amount" placeholder="Amount" required><br>
+    <button type="submit">Submit</button>
+  </form>
+  <p id="message"></p>
+  <button onclick="logout()">Logout</button>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = 'login.html';
+
+    document.getElementById('txnForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const txnData = {
+        type: form.type.value,
+        amount: form.amount.value,
+      };
+      try {
+        const res = await fetch('/api/transactions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(txnData),
+        });
+        const result = await res.json();
+        document.getElementById('message').textContent = res.ok
+          ? 'Transaction successful!'
+          : result.message || 'Transaction failed.';
+      } catch (err) {
+        document.getElementById('message').textContent = 'Error making transaction.';
+      }
+    });
+
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

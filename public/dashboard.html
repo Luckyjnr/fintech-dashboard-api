@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <style>
+    button {
+      margin: 10px 5px;
+    }
+    #profileImage {
+      max-width: 150px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h2>Dashboard</h2>
+  <p id="userInfo">Loading user info...</p>
+  <img id="profileImage" src="" alt="Profile Image" style="display: none;">
+  <p id="noImage" style="color: gray;">No profile image uploaded</p>
+  <button onclick="logout()">Logout</button>
+  <button onclick="goToTransactions()">Go to Transactions</button>
+
+  <script>
+    async function loadDashboard() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:5000/api/dashboard', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+        console.log('Dashboard response:', data); // Debug for screenshot
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to load dashboard');
+        }
+
+        document.getElementById('userInfo').innerHTML = `
+          Username: ${data.username}<br>
+          Role: ${data.role}<br>
+          Balance: $${data.balance}<br>
+          Total Transactions: ${data.totalTransactions}
+        `;
+
+        // Display profile image or placeholder
+        const profileImage = document.getElementById('profileImage');
+        const noImage = document.getElementById('noImage');
+        if (data.profileImage) {
+          profileImage.src = `http://localhost:5000${data.profileImage}`; // Use port 5000
+          profileImage.style.display = 'block';
+          noImage.style.display = 'none';
+        } else {
+          profileImage.style.display = 'none';
+          noImage.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('userInfo').textContent = 'Unable to fetch user info';
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = '/login.html';
+    }
+
+    function goToTransactions() {
+      window.location.href = '/transaction.html';
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>
