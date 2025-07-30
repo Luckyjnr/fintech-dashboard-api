@@ -4,13 +4,13 @@ const path = require('path');
 // Configure storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Save to /uploads
+    cb(null, path.join('/tmp', 'Uploads')); // Use /tmp for Render
   },
   filename: (req, file, cb) => {
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 8);
     const ext = path.extname(file.originalname);
-    cb(null, `${timestamp}-${randomString}${ext}`); // E.g., 16987654321-abcdef.jpg
+    cb(null, `${timestamp}-${randomString}${ext}`);
   },
 });
 

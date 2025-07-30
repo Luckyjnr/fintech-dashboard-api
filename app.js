@@ -11,14 +11,14 @@ dotenv.config();
 
 const app = express();
 
-// Create uploads folder if it doesn't exist
-const uploadsDir = path.join(__dirname, 'Uploads');
+// Create uploads folder in /tmp for Render
+const uploadsDir = path.join('/tmp', 'Uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log('Created uploads/ folder');
+  console.log('Created uploads/ folder in /tmp');
 }
 
-// Security Middleware with CSP for Vercel
+// Security Middleware with CSP
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -27,8 +27,8 @@ app.use(
         'script-src': ["'self'", "'unsafe-inline'"],
         'script-src-attr': ["'unsafe-inline'"],
         'default-src': ["'self'"],
-        'img-src': ["'self'", "data:", "https://*.vercel.app"],
-        'media-src': ["'self'", "https://*.vercel.app"],
+        'img-src': ["'self'", "data:", "https://*.onrender.com"],
+        'media-src': ["'self'", "https://*.onrender.com"],
         'style-src': ["'self'", "'unsafe-inline'"],
       },
     },
@@ -36,7 +36,7 @@ app.use(
 );
 
 // CORS Configuration
-const allowedOrigins = [process.env.FRONTEND_URL || 'https://your-frontend.vercel.app'];
+const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:3000'];
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -61,7 +61,7 @@ app.use(limiter);
 
 // Serve Static Files
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'Uploads')));
+app.use('/uploads', express.static(path.join('/tmp', 'Uploads')));
 
 // API Routes
 const authRoutes = require('./routes/authRoutes');
@@ -79,7 +79,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Default Route
 app.get('/', (req, res) => {
-  res.send('Fintech Dashboard API is running...');
+  res.send('Fintech Dashboard API is running on Render...');
 });
 
 // Error Handler Middleware
