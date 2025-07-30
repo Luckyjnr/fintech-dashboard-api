@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 const app = require('./app');
 
+// Set Mongoose strictQuery to suppress deprecation warning
+mongoose.set('strictQuery', true);
+
 const PORT = process.env.PORT || 5000;
 
 mongoose
