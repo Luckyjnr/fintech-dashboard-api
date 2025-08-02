@@ -14,7 +14,7 @@ const app = express();
 // Create uploads folder in /tmp for Render
 const uploadsDir = path.join('/tmp', 'Uploads');
 if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(UploadsDir, { recursive: true });
+  fs.mkdirSync(uploadsDir, { recursive: true });
   console.log('Created uploads/ folder in /tmp');
 }
 
