@@ -14,7 +14,7 @@ const app = express();
 // Create uploads folder in /tmp for Render
 const uploadsDir = path.join('/tmp', 'Uploads');
 if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+  fs.mkdirSync(UploadsDir, { recursive: true });
   console.log('Created uploads/ folder in /tmp');
 }
 
@@ -61,7 +61,12 @@ app.use(limiter);
 
 // Serve Static Files
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join('/tmp', 'Uploads')));
+app.use('/Uploads', express.static(path.join('/tmp', 'Uploads')));
+
+// Health check route for Task 49A
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
+});
 
 // API Routes
 const authRoutes = require('./routes/authRoutes');

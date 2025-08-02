@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 // Optional: log URI for debugging (do NOT log in production)
 console.log('\n🔍 MONGO_URI:', process.env.MONGO_URI);
 
-// Validate MONGO_URI
+// Validate MONGO_URI FORMAT
 if (!process.env.MONGO_URI) {
   console.error('❌ Error: MONGO_URI is not defined in environment variables');
   process.exit(1);
