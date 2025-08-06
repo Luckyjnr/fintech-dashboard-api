@@ -14,7 +14,7 @@ const app = express();
 // Create uploads folder in /tmp for Render
 const uploadsDir = path.join('/tmp', 'Uploads');
 if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+  fs.mkdirSync(UploadsDir, { recursive: true });
   console.log('Created uploads/ folder in /tmp');
 }
 
@@ -27,8 +27,8 @@ app.use(
         'script-src': ["'self'", "'unsafe-inline'"],
         'script-src-attr': ["'unsafe-inline'"],
         'default-src': ["'self'"],
-        'img-src': ["'self'", "data:", "https://*.onrender.com"],
-        'media-src': ["'self'", "https://*.onrender.com"],
+        'img-src': ["'self'", "data:", "https://*.onrender.com", "https://*.vercel.app"],
+        'media-src': ["'self'", "https://*.onrender.com", "https://*.vercel.app"],
         'style-src': ["'self'", "'unsafe-inline'"],
       },
     },
@@ -36,7 +36,10 @@ app.use(
 );
 
 // CORS Configuration
-const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:3000'];
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  'https://your-vercel-app.vercel.app', // Replace with actual Vercel URL after deployment
+];
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -62,6 +65,9 @@ app.use(limiter);
 // Serve Static Files
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/Uploads', express.static(path.join('/tmp', 'Uploads')));
+
+// Serve Frontend
+app.use(express.static(path.join(__dirname, 'client')));
 
 // Health check route for Task 49A
 app.get('/api/health', (req, res) => {
