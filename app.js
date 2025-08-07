@@ -46,10 +46,13 @@ const express = require('express');
        if (!origin || allowedOrigins.includes(origin)) {
          callback(null, true);
        } else {
+         console.log(`CORS blocked origin: ${origin}`);
          callback(new Error('Not allowed by CORS'));
        }
      },
      credentials: true,
+     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+     allowedHeaders: ['Content-Type', 'Authorization']
    }));
 
    // Body Parsers
@@ -65,7 +68,7 @@ const express = require('express');
 
    // Serve Static Files
    app.use(express.static(path.join(__dirname, 'public')));
-   app.use('/uploads', express.static(path.join('/tmp', 'uploads')));
+   app.use('/Uploads', express.static(path.join('/tmp', 'Uploads')));
    app.use(express.static(path.join(__dirname, 'client')));
 
    // Health check route for Task 49A
@@ -78,12 +81,13 @@ const express = require('express');
    const dashboardRoutes = require('./routes/dashboardRoutes');
    const transactionRoutes = require('./routes/transactionRoutes');
    const profileRoutes = require('./routes/profileRoutes');
+   const adminRoutes = require('./routes/adminRoutes');
 
    app.use('/api/auth', authRoutes);
    app.use('/api', dashboardRoutes);
    app.use('/api/transactions', transactionRoutes);
    app.use('/api/profile', profileRoutes);
-
+   app.use('/api/admin', adminRoutes);
 
    // Swagger Docs
    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
