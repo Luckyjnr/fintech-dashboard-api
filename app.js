@@ -12,9 +12,9 @@ const express = require('express');
    const app = express();
 
    // Create uploads folder in /tmp for Render
-   const uploadsDir = path.join('/tmp', 'Uploads');
+   const uploadsDir = path.join('/tmp', 'uploads');
    if (!fs.existsSync(uploadsDir)) {
-     fs.mkdirSync(UploadsDir, { recursive: true });
+     fs.mkdirSync(uploadsDir, { recursive: true });
      console.log('Created uploads/ folder in /tmp');
    }
 
@@ -81,13 +81,11 @@ const express = require('express');
    const dashboardRoutes = require('./routes/dashboardRoutes');
    const transactionRoutes = require('./routes/transactionRoutes');
    const profileRoutes = require('./routes/profileRoutes');
-   const adminRoutes = require('./routes/adminRoutes');
 
    app.use('/api/auth', authRoutes);
    app.use('/api', dashboardRoutes);
    app.use('/api/transactions', transactionRoutes);
    app.use('/api/profile', profileRoutes);
-   app.use('/api/admin', adminRoutes);
 
    // Swagger Docs
    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
