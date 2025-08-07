@@ -25,7 +25,7 @@ const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:500
            errorEl.style.display = 'block';
            setTimeout(() => {
              window.location.href = 'dashboard.html';
-           }, 1000); // Redirect after 1 second
+           }, 1000);
          } else {
            errorEl.textContent = data.error || 'Login failed';
            errorEl.style.display = 'block';
@@ -44,31 +44,39 @@ const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:500
      const token = localStorage.getItem('token');
      if (!token) {
        window.location.href = 'login.html';
-       return;
+     } else {
+       console.log('Fetching dashboard with token:', token);
+       fetch(`${API_URL}/api/dashboard`, {
+         headers: { 'Authorization': `Bearer ${token}` },
+       })
+         .then((response) => {
+           if (!response.ok) throw new Error(`Dashboard fetch failed: ${response.status}`);
+           return response.json();
+         })
+         .then((data) => {
+           console.log('Dashboard data:', data);
+           let transactionList = '<h4>Transaction History</h4><ul>';
+           if (data.transactions && data.transactions.length > 0) {
+             data.transactions.forEach(tx => {
+               transactionList += `<li>${tx.type} of $${tx.amount} on ${new Date(tx.date).toLocaleString()}</li>`;
+             });
+           } else {
+             transactionList += '<li>No transactions found</li>';
+           }
+           transactionList += '</ul>';
+           dashboardData.innerHTML = `
+             <h3>Dashboard Stats</h3>
+             <p>Total Transactions: ${data.transactionCount || 0}</p>
+             ${transactionList}
+           `;
+         })
+         .catch((error) => {
+           console.error('Dashboard error:', error);
+           dashboardData.innerHTML = `<p style="color: red;">${error.message}</p>`;
+           localStorage.removeItem('token');
+           window.location.href = 'login.html';
+         });
      }
-
-     console.log('Fetching dashboard with token:', token);
-     fetch(`${API_URL}/api/dashboard`, {
-       headers: { 'Authorization': `Bearer ${token}` },
-     })
-       .then((response) => {
-         if (!response.ok) throw new Error(`Dashboard fetch failed: ${response.status}`);
-         return response.json();
-       })
-       .then((data) => {
-         console.log('Dashboard data:', data);
-         dashboardData.innerHTML = `
-           <h3>Dashboard Stats</h3>
-           <p>Total Transactions: ${data.transactionCount}</p>
-           <pre>${JSON.stringify(data, null, 2)}</pre>
-         `;
-       })
-       .catch((error) => {
-         console.error('Dashboard error:', error);
-         dashboardData.innerHTML = `<p style="color: red;">${error.message}</p>`;
-         localStorage.removeItem('token');
-         window.location.href = 'login.html';
-       });
    }
 
    // Logout

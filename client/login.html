@@ -9,7 +9,7 @@
        .login-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 300px; }
        h2 { text-align: center; color: #333; }
        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-       button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+       button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px 0; }
        button:hover { background-color: #0056b3; }
        .message { text-align: center; margin-top: 10px; }
        .error { color: red; }
@@ -25,6 +25,7 @@
          <button type="submit">Login</button>
          <p id="error" class="message error" style="display: none;"></p>
        </form>
+       <button onclick="window.location.href='dashboard.html'">Go to Dashboard</button>
      </div>
      <script src="js/main.js"></script>
    </body>
