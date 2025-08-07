@@ -1,100 +1,100 @@
 const express = require('express');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
-const fs = require('fs');
-const { swaggerUi, swaggerSpec } = require('./swagger');
+   const helmet = require('helmet');
+   const rateLimit = require('express-rate-limit');
+   const cors = require('cors');
+   const dotenv = require('dotenv');
+   const path = require('path');
+   const fs = require('fs');
+   const { swaggerUi, swaggerSpec } = require('./swagger');
 
-dotenv.config();
+   dotenv.config();
 
-const app = express();
+   const app = express();
 
-// Create uploads folder in /tmp for Render
-const uploadsDir = path.join('/tmp', 'Uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-  console.log('Created uploads/ folder in /tmp');
-}
+   // Create uploads folder in /tmp for Render
+   const uploadsDir = path.join('/tmp', 'Uploads');
+   if (!fs.existsSync(uploadsDir)) {
+     fs.mkdirSync(UploadsDir, { recursive: true });
+     console.log('Created uploads/ folder in /tmp');
+   }
 
-// Security Middleware with CSP
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      useDefaults: true,
-      directives: {
-        'script-src': ["'self'", "'unsafe-inline'"],
-        'script-src-attr': ["'unsafe-inline'"],
-        'default-src': ["'self'"],
-        'img-src': ["'self'", "data:", "https://*.onrender.com", "https://*.vercel.app"],
-        'media-src': ["'self'", "https://*.onrender.com", "https://*.vercel.app"],
-        'style-src': ["'self'", "'unsafe-inline'"],
-      },
-    },
-  })
-);
+   // Security Middleware with CSP
+   app.use(
+     helmet({
+       contentSecurityPolicy: {
+         useDefaults: true,
+         directives: {
+           'script-src': ["'self'", "'unsafe-inline'"],
+           'script-src-attr': ["'unsafe-inline'"],
+           'default-src': ["'self'"],
+           'img-src': ["'self'", "data:", "https://*.onrender.com", "https://fintech-dashboard-api-g5hh.vercel.app"],
+           'media-src': ["'self'", "https://*.onrender.com", "https://fintech-dashboard-api-g5hh.vercel.app"],
+           'style-src': ["'self'", "'unsafe-inline'"],
+         },
+       },
+     })
+   );
 
-// CORS Configuration
-const allowedOrigins = [
-  process.env.FRONTEND_URL || 'http://localhost:3000',
-  'https://your-vercel-app.vercel.app', // Replace with actual Vercel URL after deployment
-];
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-}));
+   // CORS Configuration
+   const allowedOrigins = [
+     process.env.FRONTEND_URL || 'http://localhost:3000',
+     'https://fintech-dashboard-api.onrender.com',
+     'https://fintech-dashboard-api-g5hh.vercel.app'
+   ];
+   app.use(cors({
+     origin: (origin, callback) => {
+       if (!origin || allowedOrigins.includes(origin)) {
+         callback(null, true);
+       } else {
+         callback(new Error('Not allowed by CORS'));
+       }
+     },
+     credentials: true,
+   }));
 
-// Body Parsers
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+   // Body Parsers
+   app.use(express.json());
+   app.use(express.urlencoded({ extended: true }));
 
-// Rate Limiting
-const limiter = rateLimit({
-  windowMs: process.env.RATE_LIMIT_WINDOW || 15 * 60 * 1000,
-  max: process.env.RATE_LIMIT_MAX || 100,
-});
-app.use(limiter);
+   // Rate Limiting
+   const limiter = rateLimit({
+     windowMs: process.env.RATE_LIMIT_WINDOW || 15 * 60 * 1000,
+     max: process.env.RATE_LIMIT_MAX || 100,
+   });
+   app.use(limiter);
 
-// Serve Static Files
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/Uploads', express.static(path.join('/tmp', 'Uploads')));
+   // Serve Static Files
+   app.use(express.static(path.join(__dirname, 'public')));
+   app.use('/uploads', express.static(path.join('/tmp', 'uploads')));
+   app.use(express.static(path.join(__dirname, 'client')));
 
-// Serve Frontend
-app.use(express.static(path.join(__dirname, 'client')));
+   // Health check route for Task 49A
+   app.get('/api/health', (req, res) => {
+     res.status(200).json({ status: 'OK' });
+   });
 
-// Health check route for Task 49A
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'OK' });
-});
+   // API Routes
+   const authRoutes = require('./routes/authRoutes');
+   const dashboardRoutes = require('./routes/dashboardRoutes');
+   const transactionRoutes = require('./routes/transactionRoutes');
+   const profileRoutes = require('./routes/profileRoutes');
 
-// API Routes
-const authRoutes = require('./routes/authRoutes');
-const dashboardRoutes = require('./routes/dashboardRoutes');
-const transactionRoutes = require('./routes/transactionRoutes');
-const profileRoutes = require('./routes/profileRoutes');
+   app.use('/api/auth', authRoutes);
+   app.use('/api', dashboardRoutes);
+   app.use('/api/transactions', transactionRoutes);
+   app.use('/api/profile', profileRoutes);
 
-app.use('/api/auth', authRoutes);
-app.use('/api', dashboardRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/profile', profileRoutes);
 
-// Swagger Docs
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+   // Swagger Docs
+   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Default Route
-app.get('/', (req, res) => {
-  res.send('Fintech Dashboard API is running on Render...');
-});
+   // Default Route
+   app.get('/', (req, res) => {
+     res.send('Fintech Dashboard API is running on Render...');
+   });
 
-// Error Handler Middleware
-const errorHandler = require('./middleware/errorHandler');
-app.use(errorHandler);
+   // Error Handler Middleware
+   const errorHandler = require('./middleware/errorHandler');
+   app.use(errorHandler);
 
-module.exports = app;
+   module.exports = app;

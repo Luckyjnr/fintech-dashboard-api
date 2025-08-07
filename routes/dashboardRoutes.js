@@ -1,49 +1,22 @@
 const express = require('express');
-const router = express.Router();
-const { protect } = require('../middleware/authMiddleware');
-const { getDashboard, getTransactions } = require('../controllers/dashboardController');
+   const router = express.Router();
+   const { protect } = require('../middleware/authMiddleware');
+   const Transaction = require('../models/Transaction');
 
-/**
- * @swagger
- * tags:
- *   name: Dashboard
- *   description: User dashboard and transaction history
- */
+   router.get('/dashboard', protect, async (req, res) => {
+     try {
+       const transactionCount = await Transaction.countDocuments({ user: req.user._id });
+       res.status(200).json({
+         message: 'Dashboard data retrieved',
+         transactionCount,
+         user: {
+           username: req.user.username,
+           role: req.user.role
+         }
+       });
+     } catch (error) {
+       res.status(500).json({ error: 'Server error' });
+     }
+   });
 
-/**
- * @swagger
- * /api/dashboard:
- *   get:
- *     summary: Get user dashboard summary (balance and total transactions)
- *     tags: [Dashboard]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Dashboard data retrieved successfully
- *       401:
- *         description: Unauthorized, token missing or invalid
- *       500:
- *         description: Server error
- */
-router.get('/dashboard', protect, getDashboard);
-
-/**
- * @swagger
- * /api/transactions:
- *   get:
- *     summary: Get all transactions for the logged-in user
- *     tags: [Dashboard]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of transactions retrieved successfully
- *       401:
- *         description: Unauthorized, token missing or invalid
- *       500:
- *         description: Server error
- */
-router.get('/transactions', protect, getTransactions);
-
-module.exports = router;
+   module.exports = router;
